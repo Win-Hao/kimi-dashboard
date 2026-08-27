@@ -24,8 +24,8 @@ Usage: kimi-dashboard <command> [options]
   setup        write [status_line] command into tui.toml      [--force] [--command "<cmd>"]
   doctor       check credential / cache / config / connectivity
   preview      render sample data, no network                 [--hot] [--stale] [--no-auth] [--expired] [--empty] [--not-kimi] [--bar] [--ascii] [--width N] [--color]
-  config       show or change what the line displays         [--preset compact|full|quota] [key=value ...]
-               e.g. config segments=model,5h,7d,git quotaStyle=bar separator=dot
+  config       show or change what the line displays         [compact|full|quota] [key=value ...]
+               e.g. config compact lang=zh · config segments=model,5h,7d,git quotaStyle=bar separator=dot
   lang         print the language to talk to the user in (zh|en): config lang, else $LANG
 `;
 

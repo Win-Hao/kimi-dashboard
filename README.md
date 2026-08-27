@@ -89,7 +89,7 @@ kimi-dashboard doctor      # 自检
 
 ```sh
 kimi-dashboard config                            # 看当前配置 + 预览行
-kimi-dashboard config --preset compact           # full（默认，全部 12 段）/ compact / quota
+kimi-dashboard config compact                    # full（默认，全部 12 段）/ compact / quota；也可写 --preset compact
 kimi-dashboard config segments=model,5h,7d,git quotaStyle=bar separator=dot
 ```
 
@@ -128,7 +128,7 @@ kimi-dashboard config segments=model,5h,7d,git quotaStyle=bar separator=dot
 
 ```
 kimi-dashboard statusline   从 stdin 读 payload，输出一行（供 kimi-code 调用）
-kimi-dashboard config       查看 / 修改显示内容            [--preset full|compact|quota] [key=value …]
+kimi-dashboard config       查看 / 修改显示内容            [full|compact|quota] [key=value …]
 kimi-dashboard setup        写 tui.toml 的 status_line     [--self] [--force] [--quiet] [--command "<cmd>"]
 kimi-dashboard doctor       自检
 kimi-dashboard preview      假数据预览，不联网            [--hot] [--stale] [--no-auth] [--expired] [--empty] [--not-kimi] [--bar] [--ascii] [--width N] [--color]
@@ -208,7 +208,7 @@ No hand-written TOML needed:
 
 ```sh
 kimi-dashboard config                            # current config + a preview line
-kimi-dashboard config --preset compact           # full (default, all 12) / compact / quota
+kimi-dashboard config compact                    # full (default, all 12) / compact / quota; --preset compact also works
 kimi-dashboard config segments=model,5h,7d,git quotaStyle=bar separator=dot
 ```
 
@@ -247,7 +247,7 @@ Config lives in `~/.config/kimi-dashboard/config.toml` (`$XDG_CONFIG_HOME` honou
 
 ```
 kimi-dashboard statusline   read the payload from stdin, print one line (called by kimi-code)
-kimi-dashboard config       show / change what the line displays   [--preset full|compact|quota] [key=value …]
+kimi-dashboard config       show / change what the line displays   [full|compact|quota] [key=value …]
 kimi-dashboard setup        write status_line into tui.toml        [--self] [--force] [--quiet] [--command "<cmd>"]
 kimi-dashboard doctor       self-check
 kimi-dashboard preview      sample data, offline                   [--hot] [--stale] [--no-auth] [--expired] [--empty] [--not-kimi] [--bar] [--ascii] [--width N] [--color]
