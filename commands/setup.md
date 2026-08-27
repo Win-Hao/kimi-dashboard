@@ -16,11 +16,11 @@ Talk to the user in their language: the language of their messages in this sessi
 ## Steps
 
 1. Decide the layout and the language:
-   - `$ARGUMENTS` is non-empty → `node "$CLI" config $ARGUMENTS` (accepts `--preset full|compact|quota` or `key=value`, e.g. `segments=model,5h,7d,git quotaStyle=bar lang=zh`).
+   - `$ARGUMENTS` is non-empty → `node "$CLI" config $ARGUMENTS` (accepts a preset `full|compact|quota` and/or `key=value`, e.g. `compact lang=zh` or `segments=model,5h,7d,git quotaStyle=bar`).
    - `$ARGUMENTS` is empty → one AskUserQuestion call with **two** questions (both single-choice):
      1. "Which footer layout?" — **Full (Recommended)**: model · context · tokens · 5h · 7d · booster · spend · mode · git · cwd · session · version / **Compact**: model · context · tokens · 5h · 7d / **Quota**: 5h · 7d · booster · spend · mode · git / **Custom**: pick segments one by one.
      2. "Which language?" — **Auto (Recommended)**: follow the OS locale (`$LANG`) / **中文**: Chinese (`zh`) / **English**: `en`. Keep the labels 中文 and English as written. This is the language of kimi-dashboard's own footer text and the default for its slash commands; if the user picks 中文 or English, talk in that language from now on.
-     Then one call: `node "$CLI" config --preset <full|compact|quota> lang=<auto|zh|en>` (Custom: see below). If AskUserQuestion is unavailable (auto permission mode), use `--preset full` and do not pass `lang=`.
+     Then one call: `node "$CLI" config <full|compact|quota> lang=<auto|zh|en>` (Custom: see below). If AskUserQuestion is unavailable (auto permission mode), use `full` and do not pass `lang=`.
    - **Custom** → one more AskUserQuestion call with 4 questions, each with `multi_select: true` (snake_case `multi_select`, not `multiSelect`). Each question has 3 segments plus one **"None of these"** option (kimi-code allows at most 4 options per question; never merge segments into bundles — the user ticks them individually):
      1. "Which quota segments?" `5h` 5-hour window · `7d` weekly window · `booster` booster balance · **None of these**
      2. "Which model / context segments?" `model` model name · `ctx` context bar · `tokens` context window tokens used/max (62.5k/195k) · **None of these**

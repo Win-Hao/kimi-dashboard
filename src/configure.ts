@@ -100,27 +100,45 @@ export function serializeConfig(config: DashboardConfig): string {
   ].join("\n");
 }
 
-function flagValue(args: string[], name: string): string | undefined {
-  const index = args.indexOf(name);
-  return index === -1 ? undefined : args[index + 1];
+const PRESET_NAMES = Object.keys(PRESETS).join(", ");
+const isPreset = (s: string): s is keyof typeof PRESETS => Object.prototype.hasOwnProperty.call(PRESETS, s);
+
+type SplitArgs = { ok: true; preset: keyof typeof PRESETS | undefined; assignments: string[] } | { ok: false; error: string };
+
+/** A bare `compact` (what `/kimi-dashboard:setup compact` runs) or `--preset compact` picks a preset; everything else must be `key=value`. */
+function splitArgs(args: string[]): SplitArgs {
+  let preset: keyof typeof PRESETS | undefined;
+  const assignments: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i] as string;
+    if (arg === "--preset") {
+      const value = args[++i];
+      if (value === undefined) return { ok: false, error: `--preset needs a value (${PRESET_NAMES})` };
+      if (!isPreset(value)) return { ok: false, error: `unknown preset "${value}" (available: ${PRESET_NAMES})` };
+      preset = value;
+    } else if (arg.includes("=")) {
+      assignments.push(arg);
+    } else if (isPreset(arg)) {
+      preset = arg;
+    } else {
+      return { ok: false, error: `expected a preset (${PRESET_NAMES}) or key=value (got "${arg}")` };
+    }
+  }
+  return { ok: true, preset, assignments };
 }
 
 /** Exit 0 and print the effective config + a preview line; exit 1 on invalid input (file untouched). */
 export function runConfig(args: string[], ctx: CommandContext): number {
   const path = configPath(ctx.env, ctx.home);
   const current = loadConfig(path);
-  const preset = flagValue(args, "--preset");
-  const assignments = args.filter((a, i) => a !== "--preset" && !(i > 0 && args[i - 1] === "--preset"));
-
-  let next = current;
-  if (preset !== undefined) {
-    const segments = (PRESETS as Record<string, SegmentId[] | undefined>)[preset];
-    if (!segments) {
-      process.stderr.write(`unknown preset "${preset}" (available: ${Object.keys(PRESETS).join(", ")})\n`);
-      return 1;
-    }
-    next = { ...next, segments: [...segments] };
+  const split = splitArgs(args);
+  if (!split.ok) {
+    process.stderr.write(`${split.error}\n`);
+    return 1;
   }
+  const { preset, assignments } = split;
+
+  let next = preset === undefined ? current : { ...current, segments: [...PRESETS[preset]] };
   const applied = applyAssignments(next, assignments);
   if (!applied.ok) {
     process.stderr.write(`${applied.error}\n`);

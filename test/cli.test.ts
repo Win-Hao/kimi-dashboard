@@ -253,3 +253,25 @@ test("config applies a preset and lang together — the single call the setup co
   expect(readFileSync(file, "utf8")).toContain('lang = "auto"');
   expect((await run(["lang"], { ...env, LANG: "en_US.UTF-8" })).stdout).toBe("en\n");
 });
+
+test("config takes a bare preset name, as the README and /kimi-dashboard:setup <preset> promise", async () => {
+  const env = e2eEnv(UNREACHABLE);
+  const file = join(env.XDG_CONFIG_HOME, "kimi-dashboard", "config.toml");
+  const compact = await run(["config", "compact"], env);
+  expect(compact.status).toBe(0);
+  expect(readFileSync(file, "utf8")).toContain('segments = ["model", "ctx", "tokens", "5h", "7d"]');
+
+  const quota = await run(["config", "quota", "lang=zh"], env);
+  expect(quota.status).toBe(0);
+  expect(readFileSync(file, "utf8")).toContain('segments = ["5h", "7d", "booster", "spend", "mode", "git"]');
+  expect(readFileSync(file, "utf8")).toContain('lang = "zh"');
+
+  const before = readFileSync(file, "utf8");
+  const typo = await run(["config", "compct"], env);
+  expect(typo.status).toBe(1);
+  expect(typo.stderr).toBe('expected a preset (compact, full, quota) or key=value (got "compct")\n');
+  const dangling = await run(["config", "--preset"], env);
+  expect(dangling.status).toBe(1);
+  expect(dangling.stderr).toBe("--preset needs a value (compact, full, quota)\n");
+  expect(readFileSync(file, "utf8")).toBe(before);
+});

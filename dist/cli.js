@@ -879,25 +879,39 @@ function serializeConfig(config) {
     ""
   ].join("\n");
 }
-function flagValue2(args, name) {
-  const index = args.indexOf(name);
-  return index === -1 ? void 0 : args[index + 1];
+var PRESET_NAMES = Object.keys(PRESETS).join(", ");
+var isPreset = (s) => Object.prototype.hasOwnProperty.call(PRESETS, s);
+function splitArgs(args) {
+  let preset;
+  const assignments = [];
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === "--preset") {
+      const value = args[++i];
+      if (value === void 0) return { ok: false, error: `--preset needs a value (${PRESET_NAMES})` };
+      if (!isPreset(value)) return { ok: false, error: `unknown preset "${value}" (available: ${PRESET_NAMES})` };
+      preset = value;
+    } else if (arg.includes("=")) {
+      assignments.push(arg);
+    } else if (isPreset(arg)) {
+      preset = arg;
+    } else {
+      return { ok: false, error: `expected a preset (${PRESET_NAMES}) or key=value (got "${arg}")` };
+    }
+  }
+  return { ok: true, preset, assignments };
 }
 function runConfig(args, ctx) {
   const path = configPath(ctx.env, ctx.home);
   const current = loadConfig(path);
-  const preset = flagValue2(args, "--preset");
-  const assignments = args.filter((a, i) => a !== "--preset" && !(i > 0 && args[i - 1] === "--preset"));
-  let next = current;
-  if (preset !== void 0) {
-    const segments = PRESETS[preset];
-    if (!segments) {
-      process.stderr.write(`unknown preset "${preset}" (available: ${Object.keys(PRESETS).join(", ")})
+  const split = splitArgs(args);
+  if (!split.ok) {
+    process.stderr.write(`${split.error}
 `);
-      return 1;
-    }
-    next = { ...next, segments: [...segments] };
+    return 1;
   }
+  const { preset, assignments } = split;
+  let next = preset === void 0 ? current : { ...current, segments: [...PRESETS[preset]] };
   const applied = applyAssignments(next, assignments);
   if (!applied.ok) {
     process.stderr.write(`${applied.error}
@@ -1347,7 +1361,7 @@ ${commandLine}
   return { kind: "write", text: inserted.join("\n") };
 }
 var DEFAULT_COMMAND = "kimi-dashboard statusline";
-function flagValue3(args, name) {
+function flagValue2(args, name) {
   const index = args.indexOf(name);
   return index === -1 ? void 0 : args[index + 1];
 }
@@ -1366,7 +1380,7 @@ async function confirm(question) {
 }
 async function runSetup(args, ctx) {
   const quiet = args.includes("--quiet");
-  const explicit = flagValue3(args, "--command");
+  const explicit = flagValue2(args, "--command");
   const command = explicit ?? (args.includes("--self") && ctx.selfPath ? `node "${ctx.selfPath}" statusline` : DEFAULT_COMMAND);
   const tuiPath = join9(kimiHome(ctx.env, ctx.home), "tui.toml");
   const say = (text2) => {
@@ -1423,8 +1437,8 @@ Usage: kimi-dashboard <command> [options]
   setup        write [status_line] command into tui.toml      [--force] [--command "<cmd>"]
   doctor       check credential / cache / config / connectivity
   preview      render sample data, no network                 [--hot] [--stale] [--no-auth] [--expired] [--empty] [--not-kimi] [--bar] [--ascii] [--width N] [--color]
-  config       show or change what the line displays         [--preset compact|full|quota] [key=value ...]
-               e.g. config segments=model,5h,7d,git quotaStyle=bar separator=dot
+  config       show or change what the line displays         [compact|full|quota] [key=value ...]
+               e.g. config compact lang=zh \xB7 config segments=model,5h,7d,git quotaStyle=bar separator=dot
   lang         print the language to talk to the user in (zh|en): config lang, else $LANG
 `;
 var SELF = fileURLToPath(import.meta.url);
