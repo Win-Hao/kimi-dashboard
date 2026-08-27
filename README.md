@@ -59,7 +59,7 @@ kimi-dashboard doctor      # 自检
 |---|---|---|
 | `model` | `◆ K3` | kimi-code |
 | `ctx` | `███░░░░░░░ 32%` context 占用 | kimi-code |
-| `tokens` | `62.5k/195k` 已用 / 上限 | kimi-code |
+| `tokens` | `62.5k/195k` context 窗口已用 / 上限 token（和 `ctx` 同一数据，另一种画法） | kimi-code |
 | `5h` | `5h: 18% (32m)` 5 小时额度 + 重置倒计时 | `/usages` |
 | `7d` | `7d: 34% (1d20h)` 周额度 + 重置倒计时 | `/usages` |
 | `booster` | `⚡ ¥42.00` 加油包余额（未启用不显示） | `/usages` |
@@ -176,7 +176,7 @@ Without a global install: `kimi-dashboard setup --command "node /abs/path/dist/c
 |---|---|---|
 | `model` | `◆ K3` | kimi-code |
 | `ctx` | `███░░░░░░░ 32%` context usage | kimi-code |
-| `tokens` | `62.5k/195k` used / max | kimi-code |
+| `tokens` | `62.5k/195k` context window tokens used / max (same data as `ctx`, as numbers) | kimi-code |
 | `5h` | `5h: 18% (32m)` 5-hour window + reset countdown | `/usages` |
 | `7d` | `7d: 34% (1d20h)` weekly window + reset countdown | `/usages` |
 | `booster` | `⚡ ¥42.00` booster balance (hidden when not enabled) | `/usages` |
