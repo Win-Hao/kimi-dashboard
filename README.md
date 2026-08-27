@@ -32,11 +32,11 @@ Kimi Code quota (5h / 7d / booster), context and session info, always visible in
 /kimi-dashboard:setup
 ```
 
-`setup` 会弹出布局选择（Full / Compact / Quota / Custom），写好配置并把 `~/.kimi-code/tui.toml` 的 `status_line.command` 指向插件自带的 `dist/cli.js`——不依赖 PATH，不依赖 npm。之后每次会话启动 `SessionStart` hook 会自动保持接线；tui.toml 里已有别人的自定义命令时不会覆盖，要替换请 `/kimi-dashboard:setup --force`。
+`setup` 会弹出布局（Full / Compact / Quota / Custom）和语言（自动 / 中文 / English）选择，写好配置并把 `~/.kimi-code/tui.toml` 的 `status_line.command` 指向插件自带的 `dist/cli.js`——不依赖 PATH，不依赖 npm。之后每次会话启动 `SessionStart` hook 会自动保持接线；tui.toml 里已有别人的自定义命令时不会覆盖，要替换请 `/kimi-dashboard:setup --force`。
 
 | 斜杠命令 | 作用 |
 |---|---|
-| `/kimi-dashboard:setup [full\|compact\|quota\|key=value…] [--force]` | 选择显示内容并接线；不带参数弹出布局选择 |
+| `/kimi-dashboard:setup [full\|compact\|quota\|key=value…] [--force]` | 选择显示内容和语言并接线；不带参数弹出布局与语言选择 |
 | `/kimi-dashboard:doctor` | 自检：凭证 / 缓存 / 配置 / 连通性 |
 | `/kimi-dashboard:preview` | 用假数据预览各种状态，不联网 |
 
@@ -93,7 +93,7 @@ kimi-dashboard config --preset compact           # full（默认，全部 12 段
 kimi-dashboard config segments=model,5h,7d,git quotaStyle=bar separator=dot
 ```
 
-插件用户等价于 `/kimi-dashboard:setup compact` 或 `/kimi-dashboard:setup segments=…`。改完 1 秒内生效，不用重启。
+插件用户等价于 `/kimi-dashboard:setup compact`、`/kimi-dashboard:setup segments=…` 或 `/kimi-dashboard:setup lang=zh`。改完 1 秒内生效，不用重启。
 预设：`compact` = model ctx tokens 5h 7d；`quota` = 5h 7d booster spend mode git。
 
 | 键 | 默认 | 说明 |
@@ -108,7 +108,7 @@ kimi-dashboard config segments=model,5h,7d,git quotaStyle=bar separator=dot
 | `quotaWhenNotKimi` | `hide` | `show` 则用其他服务商时也显示 Kimi 额度 |
 | `refreshIntervalMs` | `120000` | 额度缓存 TTL |
 | `staleAfterMs` | `600000` | 超过则加 `~` |
-| `lang` | `auto` | 底栏提示语言 `zh` / `en`；`auto` 按系统 `$LANG`。斜杠命令会用你说话的语言回复 |
+| `lang` | `auto` | 底栏提示语言 `zh` / `en`；`auto` 按系统 `$LANG`；不带参数的 `/kimi-dashboard:setup` 会问。斜杠命令会用你说话的语言回复 |
 
 配置文件 `~/.config/kimi-dashboard/config.toml`（`$XDG_CONFIG_HOME` 可改），也可以手改；缓存在 `~/.cache/kimi-dashboard/`。
 `KIMI_CODE_HOME`、`KIMI_CODE_BASE_URL` 与 kimi-code 同义。
@@ -151,11 +151,11 @@ kimi-dashboard lang         打印应使用的语言 zh|en（配置 lang，否�
 /kimi-dashboard:setup
 ```
 
-`setup` offers a layout picker (Full / Compact / Quota / Custom), writes the config and points `status_line.command` in `~/.kimi-code/tui.toml` at the bundled `dist/cli.js` — no PATH, no npm. A `SessionStart` hook keeps it wired on every session; an existing foreign command is never overwritten (use `/kimi-dashboard:setup --force`).
+`setup` asks for a layout (Full / Compact / Quota / Custom) and a language (Auto / 中文 / English), writes the config and points `status_line.command` in `~/.kimi-code/tui.toml` at the bundled `dist/cli.js` — no PATH, no npm. A `SessionStart` hook keeps it wired on every session; an existing foreign command is never overwritten (use `/kimi-dashboard:setup --force`).
 
 | Slash command | Does |
 |---|---|
-| `/kimi-dashboard:setup [full\|compact\|quota\|key=value…] [--force]` | choose what to show and wire the footer; no arguments → interactive picker |
+| `/kimi-dashboard:setup [full\|compact\|quota\|key=value…] [--force]` | choose what to show and the language, then wire the footer; no arguments → interactive picker |
 | `/kimi-dashboard:doctor` | credential / cache / config / connectivity check |
 | `/kimi-dashboard:preview` | render every state from sample data, offline |
 
@@ -212,7 +212,7 @@ kimi-dashboard config --preset compact           # full (default, all 12) / comp
 kimi-dashboard config segments=model,5h,7d,git quotaStyle=bar separator=dot
 ```
 
-Plugin users: `/kimi-dashboard:setup compact` or `/kimi-dashboard:setup segments=…`. Changes apply within a second.
+Plugin users: `/kimi-dashboard:setup compact`, `/kimi-dashboard:setup segments=…` or `/kimi-dashboard:setup lang=zh`. Changes apply within a second.
 Presets: `compact` = model ctx tokens 5h 7d; `quota` = 5h 7d booster spend mode git.
 
 | Key | Default | Meaning |
@@ -227,7 +227,7 @@ Presets: `compact` = model ctx tokens 5h 7d; `quota` = 5h 7d booster spend mode 
 | `quotaWhenNotKimi` | `hide` | `show` keeps the Kimi quota visible for other providers |
 | `refreshIntervalMs` | `120000` | quota cache TTL |
 | `staleAfterMs` | `600000` | older data gets the `~` prefix |
-| `lang` | `auto` | language of the footer hint, `zh` / `en`; `auto` follows `$LANG`. The slash commands answer in whatever language you write in |
+| `lang` | `auto` | language of the footer hint, `zh` / `en`; `auto` follows `$LANG`; `/kimi-dashboard:setup` without arguments asks for it. The slash commands answer in whatever language you write in |
 
 Config lives in `~/.config/kimi-dashboard/config.toml` (`$XDG_CONFIG_HOME` honoured) and can be edited by hand; the cache is in `~/.cache/kimi-dashboard/`.
 `KIMI_CODE_HOME` and `KIMI_CODE_BASE_URL` mean what they mean to kimi-code.

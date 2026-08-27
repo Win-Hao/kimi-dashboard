@@ -26,3 +26,13 @@ test("the repo root is a valid kimi-code plugin: manifest, commands, hook and bu
   expect(existsSync(join(root, "dist", "cli.js"))).toBe(true);
   expect(statSync(join(root, "dist", "cli.js")).size).toBeGreaterThan(10_000);
 });
+
+/** The interactive setup asks for the language next to the layout and writes both in one `config` call. */
+test("setup offers the language choice (auto / zh / en) alongside the layout", () => {
+  const setup = readFileSync(join(root, "commands", "setup.md"), "utf8");
+  expect(setup).toContain('"Which language?"');
+  expect(setup).toContain("**Auto (Recommended)**");
+  expect(setup).toContain("**中文**");
+  expect(setup).toContain("**English**");
+  expect(setup).toContain("lang=<auto|zh|en>");
+});
