@@ -13,7 +13,12 @@ CLI="${KIMI_CODE_HOME:-$HOME/.kimi-code}/plugins/managed/kimi-dashboard/dist/cli
 
 1. 决定布局：
    - `$ARGUMENTS` 非空 → `node "$CLI" config $ARGUMENTS`（支持 `--preset full|compact|quota` 或 `key=value`，例如 `segments=model,5h,7d,git quotaStyle=bar`）。
-   - `$ARGUMENTS` 为空 → 用 AskUserQuestion 问「底栏显示哪种布局？」，选项：**Full（推荐）**：模型·context·token·5h·7d·加油包·月消费·模式·分支·目录·会话时长·版本 / **Compact**：模型·context·token·5h·7d / **Quota**：5h·7d·加油包·月消费·模式·分支 / **Custom**：用户自己列段位。然后 `node "$CLI" config --preset <选择>`（Custom → `config segments=a,b,c`）。AskUserQuestion 不可用（auto 模式）时直接用 `--preset full`。
+   - `$ARGUMENTS` 为空 → 用 AskUserQuestion 问「底栏显示哪种布局？」，选项：**Full（推荐）**：模型·context·token·5h·7d·加油包·月消费·模式·分支·目录·会话时长·版本 / **Compact**：模型·context·token·5h·7d / **Quota**：5h·7d·加油包·月消费·模式·分支 / **Custom**：逐个勾选。然后 `node "$CLI" config --preset <选择>`。AskUserQuestion 不可用（auto 模式）时直接用 `--preset full`。
+   - 选了 **Custom** → 再调用一次 AskUserQuestion，一次传 3 个 `multiSelect: true` 的问题（每题 4 个选项，不要合并成套餐，让用户一个一个勾）：
+     1. 「额度相关要显示哪些？」`5h` 5 小时额度 · `7d` 周额度 · `booster` 加油包余额 · `spend` 加油包本月消费
+     2. 「上下文与模型要显示哪些？」`model` 模型名 · `ctx` context 进度条 · `tokens` 已用/上限 token · `mode` auto/yolo/plan 模式
+     3. 「环境信息要显示哪些？」`git` 分支 · `cwd` 目录名 · `session` 会话时长 · `version` kimi-code 版本
+     把勾选结果按固定顺序 model ctx tokens 5h 7d booster spend mode git cwd session version 排好，运行 `node "$CLI" config segments=a,b,c`；一个都没勾时提示至少选一个并重新问。用户想改顺序时，直接按他给的顺序写 `segments=`。
    - 退出码 1 → 把 stderr 的那一句转述给用户，重新问；不要自己猜。
    - 记下输出最后一行 `preview: ` 后面的内容。
 2. 接线：`node "$CLI" setup --self`。退出码 0 → 成功；退出码 2 → tui.toml 里有别的自定义命令，把输出里引号内的那条命令告诉用户，用户同意替换后再跑 `node "$CLI" setup --self --force`。
