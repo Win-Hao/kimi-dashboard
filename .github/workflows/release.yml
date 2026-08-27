@@ -1,0 +1,45 @@
+name: release
+
+# Push a tag like v0.2.0 → verify → GitHub Release (what `/plugins install <repo url>` downloads)
+# → npm publish when the NPM_TOKEN secret is configured.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - name: dist must be committed and fresh
+        run: git diff --exit-code -- dist
+      - name: tag must match package.json and kimi.plugin.json
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG=$(node -p "require('./package.json').version")
+          PLUGIN=$(node -p "require('./kimi.plugin.json').version")
+          test "$TAG" = "$PKG" -a "$TAG" = "$PLUGIN" || { echo "tag v$TAG ≠ package.json $PKG / kimi.plugin.json $PLUGIN"; exit 1; }
+      - name: GitHub release
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes --title "$GITHUB_REF_NAME"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: npm publish
+        if: env.NPM_TOKEN != ''
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
