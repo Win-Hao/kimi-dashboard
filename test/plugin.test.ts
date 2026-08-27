@@ -14,7 +14,7 @@ test("the repo root is a valid kimi-code plugin: manifest, commands, hook and bu
   expect(manifest["version"]).toBe(pkg.version);
   expect(manifest["commands"]).toBe("./commands/");
   for (const file of ["setup.md", "doctor.md", "preview.md"]) {
-    const text = readFileSync(join(root, "commands", file), "utf8");
+    const text = readFileSync(join(root, "commands", file), "utf8").replace(/\r\n/g, "\n");
     expect(text.startsWith("---\n")).toBe(true);
     expect(text).toMatch(/^description: .+/m);
     expect(text).toContain("plugins/managed/kimi-dashboard/dist/cli.js");

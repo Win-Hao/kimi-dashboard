@@ -72,6 +72,6 @@ test("hostile or malformed config degrades to defaults rather than crashing the 
 });
 
 test("config lives under XDG_CONFIG_HOME, defaulting to ~/.config", () => {
-  expect(configPath({ XDG_CONFIG_HOME: "/tmp/xdg-config" }, "/home/me")).toBe("/tmp/xdg-config/kimi-dashboard/config.toml");
-  expect(configPath({}, "/home/me")).toBe("/home/me/.config/kimi-dashboard/config.toml");
+  expect(configPath({ XDG_CONFIG_HOME: "/tmp/xdg-config" }, "/home/me")).toBe(join("/tmp/xdg-config", "kimi-dashboard", "config.toml"));
+  expect(configPath({}, "/home/me")).toBe(join("/home/me", ".config", "kimi-dashboard", "config.toml"));
 });

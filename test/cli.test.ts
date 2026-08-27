@@ -182,7 +182,8 @@ test("setup --self points tui.toml at this very bundle by absolute path, and --q
   const tui = join(env.KIMI_CODE_HOME, "tui.toml");
   const first = await run(["setup", "--self", "--quiet"], env);
   expect(first).toEqual({ stdout: "", stderr: "", status: 0 });
-  expect(readFileSync(tui, "utf8")).toBe(`[status_line]\ncommand = "node \\"${cli}\\" statusline"\n`);
+  const cliToml = cli.replace(/\\/g, "\\\\"); // TOML basic string: backslashes (Windows paths) are escaped
+  expect(readFileSync(tui, "utf8")).toBe(`[status_line]\ncommand = "node \\"${cliToml}\\" statusline"\n`);
   // idempotent and silent on the next session start
   expect(await run(["setup", "--self", "--quiet"], env)).toEqual({ stdout: "", stderr: "", status: 0 });
   // never clobbers someone else's command from a hook

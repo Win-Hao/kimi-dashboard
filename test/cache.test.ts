@@ -44,7 +44,7 @@ test("missing, corrupt, foreign-schema or wrongly shaped files all read as no ca
 
 test("the cache lives under XDG_CACHE_HOME, defaulting to ~/.cache", async () => {
   const { cachePath } = await import("../src/quota/cache.js");
-  expect(cachePath({ XDG_CACHE_HOME: "/tmp/xdg" }, "/home/me")).toBe("/tmp/xdg/kimi-dashboard/quota.json");
-  expect(cachePath({ XDG_CACHE_HOME: "" }, "/home/me")).toBe("/home/me/.cache/kimi-dashboard/quota.json");
-  expect(cachePath({}, "/home/me")).toBe("/home/me/.cache/kimi-dashboard/quota.json");
+  expect(cachePath({ XDG_CACHE_HOME: "/tmp/xdg" }, "/home/me")).toBe(join("/tmp/xdg", "kimi-dashboard", "quota.json"));
+  expect(cachePath({ XDG_CACHE_HOME: "" }, "/home/me")).toBe(join("/home/me", ".cache", "kimi-dashboard", "quota.json"));
+  expect(cachePath({}, "/home/me")).toBe(join("/home/me", ".cache", "kimi-dashboard", "quota.json"));
 });
