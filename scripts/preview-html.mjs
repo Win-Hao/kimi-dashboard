@@ -12,6 +12,9 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const cli = join(root, "dist", "cli.js");
 const out = process.argv[2] ?? join(root, "docs", "preview.html");
 
+// Pinned so the generated docs do not depend on the shell they were produced in.
+const PREVIEW_ENV = { TERM: "xterm-256color", NO_COLOR: "", COLUMNS: "200", LANG: "zh_CN.UTF-8", LC_ALL: "" };
+
 const STATES = [
   ["正常 · Kimi 模型", ["--color"]],
   ["高用量 · 黄 / 红档", ["--color", "--hot"]],
@@ -94,7 +97,7 @@ function ansiToSvg(line) {
 
 function writeSvg(path, states) {
   const lines = states.map(([label, args]) => {
-    const r = spawnSync(process.execPath, [cli, "preview", ...args], { encoding: "utf8", env: { ...process.env, TERM: "xterm-256color", NO_COLOR: "" } });
+    const r = spawnSync(process.execPath, [cli, "preview", ...args], { encoding: "utf8", env: { ...process.env, ...PREVIEW_ENV } });
     return [label, r.stdout.trimEnd()];
   });
   const width = 1180, height = PAD * 2 + lines.length * (LINE_H * 2 + 8);
@@ -113,7 +116,7 @@ function writeSvg(path, states) {
 }
 
 const rows = STATES.map(([label, args]) => {
-  const r = spawnSync(process.execPath, [cli, "preview", ...args], { encoding: "utf8", env: { ...process.env, TERM: "xterm-256color", NO_COLOR: "" } });
+  const r = spawnSync(process.execPath, [cli, "preview", ...args], { encoding: "utf8", env: { ...process.env, ...PREVIEW_ENV } });
   const line = r.stdout.trimEnd();
   return `<div class="state"><div class="label">${esc(label)} <code>preview ${esc(args.join(" "))}</code></div><pre class="term"><span class="l1">${ansiToHtml(line)}</span>\n<span class="l2">${" ".repeat(Math.max(0, 96 - 24))}context: 32% (62.5k/195k)</span></pre></div>`;
 });

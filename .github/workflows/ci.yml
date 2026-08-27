@@ -32,4 +32,5 @@ jobs:
       # guard there so the check still catches regressions without being flaky.
       - run: npm run bench
         env:
+          KIMI_DASHBOARD_BENCH_STAT: p95
           KIMI_DASHBOARD_BENCH_MAX_P99_MS: ${{ runner.os == 'Windows' && '300' || '150' }}
