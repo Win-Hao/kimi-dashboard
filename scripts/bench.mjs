@@ -15,6 +15,9 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const cli = join(root, "dist", "cli.js");
 const runs = Number.parseInt(process.env.KIMI_DASHBOARD_BENCH_RUNS ?? "40", 10);
 const maxP99 = Number.parseFloat(process.env.KIMI_DASHBOARD_BENCH_MAX_P99_MS ?? "150");
+// Which percentile the budget applies to. p99 of 40 runs is the single slowest run, so shared CI
+// runners gate on p95 (KIMI_DASHBOARD_BENCH_STAT=p95) to ignore one-off hiccups; p99 stays reported.
+const gateStat = process.env.KIMI_DASHBOARD_BENCH_STAT === "p95" ? "p95" : "p99";
 
 const cacheHome = mkdtempSync(join(tmpdir(), "kimi-dashboard-bench-"));
 mkdirSync(join(cacheHome, "kimi-dashboard"), { recursive: true });
@@ -53,10 +56,12 @@ for (let i = 0; i < runs + 3; i += 1) {
 samples.sort((a, b) => a - b);
 const pct = (p) => samples[Math.min(samples.length - 1, Math.ceil((p / 100) * samples.length) - 1)];
 const p50 = pct(50);
+const p95 = pct(95);
 const p99 = pct(99);
-console.log(`statusline cold start over ${samples.length} runs: p50=${p50.toFixed(1)}ms p99=${p99.toFixed(1)}ms max=${samples[samples.length - 1].toFixed(1)}ms`);
+console.log(`statusline cold start over ${samples.length} runs: p50=${p50.toFixed(1)}ms p95=${p95.toFixed(1)}ms p99=${p99.toFixed(1)}ms max=${samples[samples.length - 1].toFixed(1)}ms`);
 console.log(`line: ${lastLine}`);
-if (p99 > maxP99) {
-  console.error(`p99 ${p99.toFixed(1)}ms exceeds budget ${maxP99}ms`);
+const gated = gateStat === "p95" ? p95 : p99;
+if (gated > maxP99) {
+  console.error(`${gateStat} ${gated.toFixed(1)}ms exceeds budget ${maxP99}ms`);
   process.exit(1);
 }
