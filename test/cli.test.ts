@@ -189,7 +189,8 @@ test("setup --self points tui.toml at this very bundle by absolute path, and --q
   writeFileSync(tui, '[status_line]\ncommand = "~/.kimi-code/statusline.sh"\n');
   expect(await run(["setup", "--self", "--quiet"], env)).toEqual({ stdout: "", stderr: "", status: 2 });
   expect(readFileSync(tui, "utf8")).toContain("statusline.sh");
-  // the command it wrote actually works when kimi-code runs it through sh -c
+  // the command it wrote actually works when kimi-code runs it through the platform shell
+  if (process.platform === "win32") return; // kimi-code uses cmd.exe there; the quoting is covered by the TOML assertions above
   writeFileSync(tui, `[status_line]\ncommand = "node \\"${cli}\\" statusline"\n`);
   const viaSh = spawn("sh", ["-c", `node "${cli}" statusline`], { env: { PATH: process.env["PATH"], NO_COLOR: "1", COLUMNS: "200", ...env } });
   let out = "";
