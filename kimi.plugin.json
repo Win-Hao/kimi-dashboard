@@ -1,0 +1,24 @@
+{
+  "name": "kimi-dashboard",
+  "version": "0.1.0",
+  "description": "Kimi Code quota (5h / 7d / booster), context and session info always visible in the kimi-code footer. Not an official Moonshot project.",
+  "author": "kimi-dashboard contributors",
+  "homepage": "https://github.com/Win-Hao/kimi-dashboard",
+  "license": "MIT",
+  "keywords": ["statusline", "quota", "usage", "footer"],
+  "interface": {
+    "displayName": "Kimi Dashboard",
+    "shortDescription": "额度 5h/7d、加油包、context、会话信息常驻底栏",
+    "longDescription": "把 /usage 里的官方额度、context 占用、token 数、模式、分支、目录和会话时长画进 kimi-code 底栏第一行。安装后每次会话启动会自动把 status_line.command 指向本插件，执行 /reload 即生效；也可以用 /kimi-dashboard:setup、/kimi-dashboard:doctor、/kimi-dashboard:preview。只读取凭证，永不刷新 token。",
+    "developerName": "kimi-dashboard contributors",
+    "websiteURL": "https://github.com/Win-Hao/kimi-dashboard"
+  },
+  "commands": "./commands/",
+  "hooks": [
+    {
+      "event": "SessionStart",
+      "command": "node ./dist/cli.js setup --self --quiet",
+      "timeout": 5
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "usage": { "used": "40", "limit": "1000", "resetTime": "2026-08-03T05:20:51Z" },
+  "limits": [
+    {
+      "window": { "duration": 300, "timeUnit": "TIME_UNIT_MINUTE" },
+      "detail": { "used": "18", "limit": "100", "resetTime": "2026-08-01T09:00:00Z" }
+    }
+  ],
+  "boosterWallet": {
+    "balance": { "type": "BOOSTER", "amount": "10000000000", "amountLeft": "4200000000" },
+    "monthlyChargeLimitEnabled": true,
+    "monthlyChargeLimit": { "priceInCents": "20000", "currency": "CNY" },
+    "monthlyUsed": { "priceInCents": "5800", "currency": "CNY" }
+  }
+}

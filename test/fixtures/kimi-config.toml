@@ -1,0 +1,44 @@
+default_model = "kimi-code/k3"
+
+[providers.deepseek]
+base_url = "https://api.deepseek.com"
+type = "openai"
+api_key = "sk-REDACTED"
+
+[providers."managed:kimi-code"]
+type = "kimi"
+api_key = ""
+base_url = "https://api.kimi.com/coding/v1"
+
+[providers."managed:kimi-code".oauth]
+storage = "file"
+key = "oauth/kimi-code"
+
+[models."deepseek/deepseek-v4-flash"]
+provider = "deepseek"
+model = "deepseek-v4-flash"
+max_context_size = 1000000
+capabilities = [ "thinking", "tool_use" ]
+display_name = "DeepSeek V4 Flash"
+support_efforts = [
+  "low",
+  "high",
+]
+
+[models."deepseek/deepseek-chat"]
+provider = "deepseek"
+model = "deepseek-chat"
+
+[models."kimi-code/k3"]
+provider = "managed:kimi-code"
+model = "k3"
+display_name = "K3"
+
+[models."kimi-code/k3-256k"]
+provider = "managed:kimi-code"
+model = "k3-256k"
+display_name = "K3-256k"
+
+[models."other/gpt-4.1"]
+provider = "openai-compat"
+display_name = "GPT 4.1"

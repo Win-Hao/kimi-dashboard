@@ -1,0 +1,56 @@
+{
+  "name": "kimi-dashboard",
+  "version": "0.1.0",
+  "description": "Kimi Code quota (5h / 7d / booster), context and session info always visible in the kimi-code footer. kimi-code plugin + CLI. Not an official Moonshot project.",
+  "keywords": [
+    "kimi",
+    "kimi-code",
+    "statusline",
+    "status-line",
+    "footer",
+    "quota",
+    "usage",
+    "dashboard",
+    "plugin"
+  ],
+  "author": "Win-Hao",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Win-Hao/kimi-dashboard.git"
+  },
+  "homepage": "https://github.com/Win-Hao/kimi-dashboard#readme",
+  "bugs": {
+    "url": "https://github.com/Win-Hao/kimi-dashboard/issues"
+  },
+  "type": "module",
+  "bin": {
+    "kimi-dashboard": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "commands",
+    "kimi.plugin.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "bench": "node scripts/bench.mjs",
+    "prepublishOnly": "npm run build",
+    "preview:html": "node scripts/preview-html.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}
