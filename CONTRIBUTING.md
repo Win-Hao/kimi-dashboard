@@ -3,6 +3,7 @@
 Issues and pull requests are the way to change kimi-dashboard. The rules that matter live in [AGENTS.md](AGENTS.md) — they apply to humans too.
 
 - **Open an issue first** for anything user-visible (new segment, option, behaviour) so the shape can be agreed before code.
+- **Every PR is reviewed before it merges.** `main` requires one approving review plus all six CI checks; auto-merge is disabled. A new push dismisses earlier approvals.
 - **Test-first.** Every change starts with a failing test (`npm test`), then the minimal implementation. Expected values are literals.
 - **Rebuild `dist/cli.js`** (`npm run build`) and commit it — kimi-code installs the plugin straight from the GitHub archive, and CI fails on a stale bundle.
 - `npm run lint`, `npm run build`, `npm run bench` (p99 < 150 ms) must pass; CI runs ubuntu / macos / windows × node 20 / 22.
