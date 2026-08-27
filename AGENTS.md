@@ -14,6 +14,7 @@ Read SPEC.md first; it is the design contract. These rules are the parts that ar
 
 - **TDD, red → green per slice.** Write the failing test first, run it, then the minimal implementation. Expected values are literals, never recomputed. Seams: `parseUsages`, `render`, cache/creds/refresh with temp dirs and a loopback `node:http` server, `statusline()` with injected `spawnRefresh`, e2e through `dist/cli.js` using async `spawn` (never `spawnSync` — it starves the in-process test server).
 - `npm test && npm run lint && npm run build && npm run bench` must pass before any commit.
+- **Changes land through pull requests that a human reviews.** Never merge your own PR, never enable auto-merge, never push to `main` directly; open the PR, report the link, and stop.
 - **Commit `dist/cli.js`.** kimi-code installs the plugin straight from the GitHub archive; CI fails if dist is stale. Run `npm run build` before committing.
 - Keep `kimi.plugin.json` `version` equal to `package.json` `version` (test/plugin.test.ts enforces it).
 - Keep README bilingual (中文 then English); regenerate `docs/preview.svg` with `npm run preview:html` when rendering changes.
