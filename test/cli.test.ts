@@ -237,3 +237,19 @@ test("lang prints the language the agent should talk in: config lang, else the O
   await run(["config", "lang=zh"], env);
   expect((await run(["lang"], { ...env, LANG: "en_US.UTF-8" })).stdout).toBe("zh\n");
 });
+
+test("config applies a preset and lang together — the single call the setup command makes after its layout + language questions", async () => {
+  const env = e2eEnv(UNREACHABLE);
+  const file = join(env.XDG_CONFIG_HOME, "kimi-dashboard", "config.toml");
+  const both = await run(["config", "--preset", "compact", "lang=zh"], env);
+  expect(both.status).toBe(0);
+  expect(readFileSync(file, "utf8")).toContain('segments = ["model", "ctx", "tokens", "5h", "7d"]');
+  expect(readFileSync(file, "utf8")).toContain('lang = "zh"');
+  expect((await run(["lang"], { ...env, LANG: "en_US.UTF-8" })).stdout).toBe("zh\n");
+
+  const custom = await run(["config", "segments=5h,7d,git", "lang=auto"], env);
+  expect(custom.status).toBe(0);
+  expect(readFileSync(file, "utf8")).toContain('segments = ["5h", "7d", "git"]');
+  expect(readFileSync(file, "utf8")).toContain('lang = "auto"');
+  expect((await run(["lang"], { ...env, LANG: "en_US.UTF-8" })).stdout).toBe("en\n");
+});
