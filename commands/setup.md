@@ -3,6 +3,8 @@ name: setup
 description: 接入 kimi-code 底栏并选择显示内容（full / compact / quota / custom）
 ---
 
+**直接执行，不要探索。** 本文件已包含全部所需信息：不要读取任何文件、不要查看源码或其他命令文件、不要先运行 `--help`、不要 `ls`。除了下面列出的命令，不要执行任何其他工具调用。命令和参数以本文件为准。
+
 把 kimi-dashboard 接到 kimi-code 底栏并设置显示内容。只通过 CLI 操作，不要手动编辑 tui.toml 或 config.toml；**只看退出码判断结果，不要解读输出文字**。
 
 ```sh
