@@ -16,7 +16,7 @@ CLI="${KIMI_CODE_HOME:-$HOME/.kimi-code}/plugins/managed/kimi-dashboard/dist/cli
 1. 决定布局：
    - `$ARGUMENTS` 非空 → `node "$CLI" config $ARGUMENTS`（支持 `--preset full|compact|quota` 或 `key=value`，例如 `segments=model,5h,7d,git quotaStyle=bar`）。
    - `$ARGUMENTS` 为空 → 用 AskUserQuestion 问「底栏显示哪种布局？」，选项：**Full（推荐）**：模型·context·token·5h·7d·加油包·月消费·模式·分支·目录·会话时长·版本 / **Compact**：模型·context·token·5h·7d / **Quota**：5h·7d·加油包·月消费·模式·分支 / **Custom**：逐个勾选。然后 `node "$CLI" config --preset <选择>`。AskUserQuestion 不可用（auto 模式）时直接用 `--preset full`。
-   - 选了 **Custom** → 再调用一次 AskUserQuestion，一次传 4 个 `multiSelect: true` 的问题。每题 3 个段位 + 1 个「这组都不要」（kimi-code 每题最多 4 个选项，不要合并成套餐，让用户一个一个勾）：
+   - 选了 **Custom** → 再调用一次 AskUserQuestion，一次传 4 个问题，每个问题都设 `multi_select: true`（注意是蛇形 `multi_select`，不是 `multiSelect`）。每题 3 个段位 + 1 个「这组都不要」（kimi-code 每题最多 4 个选项，不要合并成套餐，让用户一个一个勾）：
      1. 「额度要显示哪些？」`5h` 5 小时额度 · `7d` 周额度 · `booster` 加油包余额 · **这组都不要**
      2. 「模型与上下文要显示哪些？」`model` 模型名 · `ctx` context 进度条 · `tokens` 已用/上限 token · **这组都不要**
      3. 「状态要显示哪些？」`spend` 加油包本月消费 · `mode` auto/yolo/plan 模式 · `session` 会话时长 · **这组都不要**
