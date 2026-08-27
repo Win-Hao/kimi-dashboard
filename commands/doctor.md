@@ -1,21 +1,19 @@
 ---
 name: doctor
-description: 自检 kimi-dashboard：凭证、缓存、配置、连通性、底栏配置
+description: Check kimi-dashboard — credential, cache, config, connectivity, footer wiring
 ---
 
-**直接执行，不要探索。** 本文件已包含全部所需信息：不要读取任何文件、不要查看源码或其他命令文件、不要先运行 `--help`、不要 `ls`。除了下面列出的命令，不要执行任何其他工具调用。命令和参数以本文件为准。
-
-用 Shell 运行：
+**Execute directly, do not explore.** Everything you need is in this file: do not read files or source code, make no tool calls other than the command below.
 
 ```sh
 node "${KIMI_CODE_HOME:-$HOME/.kimi-code}/plugins/managed/kimi-dashboard/dist/cli.js" doctor
 ```
 
-把每一行的 ✔ / ✖ 结果用中文解释给用户，并针对 ✖ 给出下一步：
+Reply in the user's language (the language of their messages; otherwise run `node "$CLI" lang` → `zh` / `en`). Explain each ✔ / ✖ line briefly and give a next step for every ✖:
 
-- `credential ✖ … expired / missing`：让用户在 kimi-code 里执行 `/login`（本插件只读凭证，永远不会替用户刷新 token）。
-- `tui.toml ✖`：执行 `/kimi-dashboard:setup`。
-- `connectivity ✖`：检查网络或 `KIMI_CODE_BASE_URL`。
-- `cache` 显示 not written yet：正常，底栏第一次渲染后才会出现。
+- `credential ✖ … expired / missing` → run `/login` in kimi-code (this plugin only reads the credential and never refreshes the token itself).
+- `tui.toml ✖` → run `/kimi-dashboard:setup`.
+- `connectivity ✖` → check the network or `KIMI_CODE_BASE_URL`.
+- `cache … not written yet` → normal; it appears after the footer renders once.
 
-输出里绝不会包含 token；不要去读 credentials 目录下的文件内容。
+The output never contains a token; do not read anything under the credentials directory.

@@ -80,7 +80,7 @@ kimi-dashboard doctor      # 自检
 | 缓存超过 10 分钟没刷新 | `~5h: 18% (32m) │ ~7d: …` |
 | 还没有缓存 | `5h: -- │ 7d: --` |
 | 没有凭证 | `5h/7d no auth` |
-| 凭证过期且没有旧数据 | `额度不可用 · 请在 kimi-code 中继续使用以刷新凭证` |
+| 凭证过期且没有旧数据 | `额度不可用 · 请在 kimi-code 中继续使用以刷新凭证`（英文环境：`quota unavailable · keep using kimi-code to refresh the login`） |
 | stdin 非法 / 内部异常 | 输出空行，kimi-code 回落到内置底栏 |
 
 ### 怎么改
@@ -108,6 +108,7 @@ kimi-dashboard config segments=model,5h,7d,git quotaStyle=bar separator=dot
 | `quotaWhenNotKimi` | `hide` | `show` 则用其他服务商时也显示 Kimi 额度 |
 | `refreshIntervalMs` | `120000` | 额度缓存 TTL |
 | `staleAfterMs` | `600000` | 超过则加 `~` |
+| `lang` | `auto` | 底栏提示语言 `zh` / `en`；`auto` 按系统 `$LANG`。斜杠命令会用你说话的语言回复 |
 
 配置文件 `~/.config/kimi-dashboard/config.toml`（`$XDG_CONFIG_HOME` 可改），也可以手改；缓存在 `~/.cache/kimi-dashboard/`。
 `KIMI_CODE_HOME`、`KIMI_CODE_BASE_URL` 与 kimi-code 同义。
@@ -133,6 +134,7 @@ kimi-dashboard doctor       自检
 kimi-dashboard preview      假数据预览，不联网            [--hot] [--stale] [--no-auth] [--expired] [--empty] [--not-kimi] [--bar] [--ascii] [--width N] [--color]
 kimi-dashboard refresh      刷一次额度写缓存              [--json]
 kimi-dashboard daemon       可选常驻刷新                  [--interval-ms N] [--verbose]
+kimi-dashboard lang         打印应使用的语言 zh|en（配置 lang，否则 $LANG）
 ```
 
 ---
@@ -197,7 +199,7 @@ Without a global install: `kimi-dashboard setup --command "node /abs/path/dist/c
 | cache older than 10 min | `~5h: 18% (32m) │ ~7d: …` |
 | no cache yet | `5h: -- │ 7d: --` |
 | no credential | `5h/7d no auth` |
-| expired credential, no old data | `额度不可用 · 请在 kimi-code 中继续使用以刷新凭证` |
+| expired credential, no old data | `quota unavailable · keep using kimi-code to refresh the login` (Chinese locale: `额度不可用 · 请在 kimi-code 中继续使用以刷新凭证`) |
 | invalid stdin / internal error | empty line → kimi-code falls back to its built-in footer |
 
 ### How to change it
@@ -225,6 +227,7 @@ Presets: `compact` = model ctx tokens 5h 7d; `quota` = 5h 7d booster spend mode 
 | `quotaWhenNotKimi` | `hide` | `show` keeps the Kimi quota visible for other providers |
 | `refreshIntervalMs` | `120000` | quota cache TTL |
 | `staleAfterMs` | `600000` | older data gets the `~` prefix |
+| `lang` | `auto` | language of the footer hint, `zh` / `en`; `auto` follows `$LANG`. The slash commands answer in whatever language you write in |
 
 Config lives in `~/.config/kimi-dashboard/config.toml` (`$XDG_CONFIG_HOME` honoured) and can be edited by hand; the cache is in `~/.cache/kimi-dashboard/`.
 `KIMI_CODE_HOME` and `KIMI_CODE_BASE_URL` mean what they mean to kimi-code.
@@ -250,6 +253,7 @@ kimi-dashboard doctor       self-check
 kimi-dashboard preview      sample data, offline                   [--hot] [--stale] [--no-auth] [--expired] [--empty] [--not-kimi] [--bar] [--ascii] [--width N] [--color]
 kimi-dashboard refresh      fetch quota once and write the cache   [--json]
 kimi-dashboard daemon       optional resident refresher            [--interval-ms N] [--verbose]
+kimi-dashboard lang         print the language to use, zh|en (config lang, else $LANG)
 ```
 
 ### Development

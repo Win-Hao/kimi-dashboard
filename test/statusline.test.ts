@@ -108,7 +108,7 @@ test("credential problems recorded by refresh show as no auth / expired hint / s
   writeCache(h.cacheFile, cacheWith({ ok: false, errorCode: "no-auth", error: "x", summary: null, limits: [] }));
   expect(h.run()).toBe("kimi-k2 | ###------- 32% | 62.5k/195k | 5h/7d no auth | auto | main | proj | <1m | v1.2.3");
   writeCache(h.cacheFile, cacheWith({ ok: false, errorCode: "expired", error: "x", summary: null, limits: [], fetchedAt: 0 }));
-  expect(h.run()).toBe("kimi-k2 | ###------- 32% | 62.5k/195k | 额度不可用 · 请在 kimi-code 中继续使用以刷新凭证 | auto | main | proj | <1m | v1.2.3");
+  expect(h.run(payload, { LANG: "zh_CN.UTF-8" })).toBe("kimi-k2 | ###------- 32% | 62.5k/195k | 额度不可用 · 请在 kimi-code 中继续使用以刷新凭证 | auto | main | proj | <1m | v1.2.3");
   writeCache(h.cacheFile, cacheWith({ ok: false, errorCode: "expired", error: "x", fetchedAt: NOW - 900_000 }));
   expect(h.run()).toBe("kimi-k2 | ###------- 32% | 62.5k/195k | ~5h: 18% | ~7d: 9% | auto | main | proj | <1m | v1.2.3");
 });
@@ -173,4 +173,15 @@ test("session duration is measured from the first time a sessionId is seen, per 
   expect(at(NOW + 65 * 60_000)).toContain("| 1h5m |");
   expect(at(NOW + 65 * 60_000, JSON.stringify({ ...JSON.parse(payload), sessionId: "session_y" }))).toContain("| <1m |");
   expect(at(NOW + 90 * 60_000)).toContain("| 1h30m |");
+});
+
+test("the expired hint follows the OS locale unless lang is pinned in the config", () => {
+  const h = harness();
+  writeCache(h.cacheFile, cacheWith({ ok: false, errorCode: "expired", error: "x", summary: null, limits: [], fetchedAt: 0 }));
+  expect(h.run(payload, { LANG: "en_US.UTF-8" })).toContain("quota unavailable · keep using kimi-code to refresh the login");
+  expect(h.run(payload, { LANG: "zh_CN.UTF-8" })).toContain("额度不可用 · 请在 kimi-code 中继续使用以刷新凭证");
+  expect(h.run(payload, {})).toContain("quota unavailable");
+  mkdirSync(join(h.env["XDG_CONFIG_HOME"]!, "kimi-dashboard"), { recursive: true });
+  writeFileSync(join(h.env["XDG_CONFIG_HOME"]!, "kimi-dashboard", "config.toml"), 'lang = "zh"\n');
+  expect(h.run(payload, { LANG: "en_US.UTF-8" })).toContain("额度不可用");
 });

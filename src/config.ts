@@ -7,6 +7,7 @@ export type QuotaWhenNotKimi = "hide" | "show";
 export type SeparatorStyle = "pipe" | "space" | "dot" | "arrow";
 /** `text` → `5h: 18% (32m)` (claude-dashboard style); `bar` → `5h ██░░░░░░░░ 18% (32m)`. */
 export type QuotaStyle = "text" | "bar";
+export type LangSetting = "auto" | "zh" | "en";
 
 export interface DashboardConfig {
   segments: SegmentId[];
@@ -23,6 +24,8 @@ export interface DashboardConfig {
   /** Glyphs in front of decoration segments (◆ model, 🌿 git, 📁 cwd, ⚡ booster, 💰 spend, ⏱ session). */
   icons: boolean;
   quotaStyle: QuotaStyle;
+  /** Language of our own footer strings (the expired hint); auto = $LANG. */
+  lang: LangSetting;
 }
 
 /**
@@ -41,6 +44,7 @@ export const DEFAULT_CONFIG: DashboardConfig = Object.freeze({
   showReset: true,
   icons: true,
   quotaStyle: "text",
+  lang: "auto",
 }) as DashboardConfig;
 
 import { readFileSync } from "node:fs";
@@ -97,6 +101,9 @@ function applyKey(out: Partial<DashboardConfig>, key: string, value: TomlValue):
       return;
     case "quotaStyle":
       if (value === "text" || value === "bar") out.quotaStyle = value;
+      return;
+    case "lang":
+      if (value === "auto" || value === "zh" || value === "en") out.lang = value;
       return;
     case "quotaWhenNotKimi":
       if (value === "hide" || value === "show") out.quotaWhenNotKimi = value;

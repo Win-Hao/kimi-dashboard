@@ -92,7 +92,8 @@ test("preview renders sample data without network or credentials", async () => {
   const env = e2eEnv(UNREACHABLE, null);
   expect(await run(["preview"], env)).toEqual({ stdout: "kimi-k2 | ###------- 32% | 62.5k/195k | 5h: 18% (32m) | 7d: 34% (1d20h) | ¥42.00 | ¥58.00/¥200.00 | auto | main | demo | 1h5m | v0.39.0\n", stderr: "", status: 0 });
   expect((await run(["preview", "--no-auth"], env)).stdout).toBe("kimi-k2 | ###------- 32% | 62.5k/195k | 5h/7d no auth | auto | main | demo | 1h5m | v0.39.0\n");
-  expect((await run(["preview", "--expired", "--width", "50"], env)).stdout).toBe("额度不可用 · 请在 kimi-code 中继续使用以刷新凭证\n");
+  expect((await run(["preview", "--expired", "--width", "50"], { ...env, LANG: "zh_CN.UTF-8" })).stdout).toBe("额度不可用 · 请在 kimi-code 中继续使用以刷新凭证\n");
+  expect((await run(["preview", "--expired", "--width", "70"], { ...env, LANG: "en_US.UTF-8" })).stdout).toBe("quota unavailable · keep using kimi-code to refresh the login\n");
   expect((await run(["preview", "--stale", "--width", "50"], env)).stdout).toBe("~5h: 18% (32m)\n");
   expect((await run(["preview", "--empty"], env)).stdout).toBe("kimi-k2 | ###------- 32% | 62.5k/195k | 5h: -- | 7d: -- | auto | main | demo | 1h5m | v0.39.0\n");
   expect((await run(["preview", "--ctx"], env)).stdout).toContain("###------- 32%");
@@ -226,4 +227,13 @@ test("config shows, presets and key=value edit the display, invalid input leaves
   expect(bad.stderr).toContain('unknown segment "bogus"');
   expect(readFileSync(file, "utf8")).toBe(before);
   expect((await run(["config", "--preset", "nope"], env)).status).toBe(1);
+});
+
+test("lang prints the language the agent should talk in: config lang, else the OS locale, else en", async () => {
+  const env = e2eEnv(UNREACHABLE);
+  expect((await run(["lang"], { ...env, LANG: "zh_CN.UTF-8" })).stdout).toBe("zh\n");
+  expect((await run(["lang"], { ...env, LANG: "en_GB.UTF-8" })).stdout).toBe("en\n");
+  expect((await run(["lang"], env)).stdout).toBe("en\n");
+  await run(["config", "lang=zh"], env);
+  expect((await run(["lang"], { ...env, LANG: "en_US.UTF-8" })).stdout).toBe("zh\n");
 });

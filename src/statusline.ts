@@ -5,6 +5,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { configPath, loadConfig, type DashboardConfig, type SegmentId } from "./config.js";
+import { detectLang } from "./lang.js";
 import { kimiHome } from "./paths.js";
 import { modelProviderKind } from "./provider.js";
 import { cacheDir, cachePath, readCache } from "./quota/cache.js";
@@ -130,6 +131,7 @@ function run(input: StatuslineInput): string {
     colors,
     now,
     home,
+    lang: detectLang(config.lang, env),
     ...(startedAt !== undefined ? { sessionStartedAt: startedAt } : {}),
   });
 }

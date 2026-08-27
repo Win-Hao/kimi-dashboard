@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { DEFAULT_CONFIG, configPath, loadConfig, type DashboardConfig } from "./config.js";
 import { render, type ColorDepth, type QuotaView } from "./render.js";
+import { detectLang } from "./lang.js";
 import { colorDepth, columnsFrom } from "./statusline.js";
 import type { QuotaData } from "./types.js";
 
@@ -60,6 +61,7 @@ export function previewLine(config: DashboardConfig, ctx: CommandContext, opts: 
     colors: opts.colors,
     now,
     home: ctx.home,
+    lang: detectLang(config.lang, ctx.env),
     sessionStartedAt: now - 65 * 60_000,
   });
 }

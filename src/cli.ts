@@ -2,7 +2,9 @@ import { spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
+import { configPath, loadConfig } from "./config.js";
 import { runConfig } from "./configure.js";
+import { detectLang } from "./lang.js";
 import { runDaemon } from "./daemon.js";
 import { runDoctor } from "./doctor.js";
 import { runPreview } from "./preview.js";
@@ -24,6 +26,7 @@ Usage: kimi-dashboard <command> [options]
   preview      render sample data, no network                 [--hot] [--stale] [--no-auth] [--expired] [--empty] [--not-kimi] [--bar] [--ascii] [--width N] [--color]
   config       show or change what the line displays         [--preset compact|full|quota] [key=value ...]
                e.g. config segments=model,5h,7d,git quotaStyle=bar separator=dot
+  lang         print the language to talk to the user in (zh|en): config lang, else $LANG
 `;
 
 const SELF = fileURLToPath(import.meta.url);
@@ -76,6 +79,9 @@ export async function main(argv: string[]): Promise<number> {
       return runPreview(rest, { env: process.env, home: homedir() });
     case "config":
       return runConfig(rest, { env: process.env, home: homedir() });
+    case "lang":
+      process.stdout.write(`${detectLang(loadConfig(configPath(process.env, homedir())).lang, process.env)}\n`);
+      return 0;
     case "--version":
     case "-v":
     case "version":

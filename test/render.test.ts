@@ -115,6 +115,7 @@ test("missing credentials collapse the quota segments into a single 'no auth' ma
   expect(render(state({ quota: { kind: "no-auth" } }))).toBe("◆ kimi-k2 │ ███░░░░░░░ 32% │ 62.5k/195k │ 5h/7d no auth │ 🌿 main │ 📁 proj");
   expect(render(state({ quota: { kind: "no-auth" }, config: seg("5h", "model") }))).toBe("5h no auth │ ◆ kimi-k2");
   expect(render(state({ quota: { kind: "expired" }, config: seg("5h", "7d", "model", "git") }))).toBe("额度不可用 · 请在 kimi-code 中继续使用以刷新凭证 │ ◆ kimi-k2 │ 🌿 main");
+  expect(render(state({ quota: { kind: "expired" }, config: seg("5h", "7d", "model", "git"), lang: "en" }))).toBe("quota unavailable · keep using kimi-code to refresh the login │ ◆ kimi-k2 │ 🌿 main");
 });
 
 test("booster balance appears only when the wallet is enabled, with a currency symbol when known", () => {

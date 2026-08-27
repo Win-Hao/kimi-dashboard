@@ -1,4 +1,5 @@
 import type { DashboardConfig, SegmentId } from "./config.js";
+import type { Lang } from "./lang.js";
 import type { ExtraUsage, QuotaData, QuotaRow, StatusLinePayload } from "./types.js";
 
 /** What the status line knows about quota at render time. */
@@ -24,9 +25,15 @@ export interface RenderState {
   home?: string;
   /** Unix ms when this kimi-code session was first seen; drives the ⏱ segment. */
   sessionStartedAt?: number;
+  /** Language for our own strings; defaults to the SPEC's Chinese wording. */
+  lang?: Lang;
 }
 
-export const EXPIRED_HINT = "额度不可用 · 请在 kimi-code 中继续使用以刷新凭证";
+export const EXPIRED_HINTS: Record<Lang, string> = {
+  zh: "额度不可用 · 请在 kimi-code 中继续使用以刷新凭证",
+  en: "quota unavailable · keep using kimi-code to refresh the login",
+};
+export const EXPIRED_HINT = EXPIRED_HINTS.zh;
 
 /** Trim order (SPEC §7): quota first, decoration last. Lower number = kept longer. */
 const PRIORITY: Record<SegmentId, number> = { "5h": 1, "7d": 2, ctx: 3, model: 4, tokens: 5, booster: 6, spend: 7, mode: 8, git: 9, cwd: 10, session: 11, version: 12 };
@@ -155,7 +162,7 @@ function collapsedQuotaSegment(id: SegmentId, state: RenderState): string | null
     case "no-auth":
       return `${enabled.join("/")} no auth`;
     case "expired":
-      return EXPIRED_HINT;
+      return EXPIRED_HINTS[state.lang ?? "zh"];
     default:
       return null;
   }

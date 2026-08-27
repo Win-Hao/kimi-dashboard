@@ -18,11 +18,12 @@ export const PRESETS: Record<"compact" | "full" | "quota", SegmentId[]> = {
   quota: ["5h", "7d", "booster", "spend", "mode", "git"],
 };
 
-const KEYS = ["segments", "quotaStyle", "separator", "showReset", "icons", "barWidth", "ascii", "quotaWhenNotKimi", "refreshIntervalMs", "staleAfterMs"] as const;
+const KEYS = ["segments", "quotaStyle", "separator", "showReset", "icons", "barWidth", "ascii", "quotaWhenNotKimi", "refreshIntervalMs", "staleAfterMs", "lang"] as const;
 const ENUMS: Record<string, readonly string[]> = {
   quotaStyle: ["text", "bar"],
   separator: ["pipe", "dot", "arrow", "space"],
   quotaWhenNotKimi: ["hide", "show"],
+  lang: ["auto", "zh", "en"],
 };
 
 export type ApplyResult = { ok: true; config: DashboardConfig } | { ok: false; error: string };
@@ -47,7 +48,8 @@ export function applyAssignments(base: DashboardConfig, assignments: string[]): 
       }
       case "quotaStyle":
       case "separator":
-      case "quotaWhenNotKimi": {
+      case "quotaWhenNotKimi":
+      case "lang": {
         const allowed = ENUMS[key] ?? [];
         if (!allowed.includes(value)) return { ok: false, error: `${key} must be one of: ${allowed.join(", ")} (got "${value}")` };
         (next as unknown as Record<string, unknown>)[key] = value;
@@ -93,6 +95,7 @@ export function serializeConfig(config: DashboardConfig): string {
     line("quotaWhenNotKimi", JSON.stringify(config.quotaWhenNotKimi), "hide | show"),
     line("refreshIntervalMs", String(config.refreshIntervalMs)),
     line("staleAfterMs", String(config.staleAfterMs)),
+    line("lang", JSON.stringify(config.lang), "auto | zh | en — footer hint language (auto = $LANG)"),
     "",
   ].join("\n");
 }

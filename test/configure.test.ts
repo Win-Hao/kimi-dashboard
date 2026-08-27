@@ -21,6 +21,7 @@ test("serializeConfig writes every key explicitly and round-trips through the lo
       'quotaWhenNotKimi = "show"      # hide | show',
       "refreshIntervalMs = 120000",
       "staleAfterMs = 600000",
+      'lang = "auto"                  # auto | zh | en — footer hint language (auto = $LANG)',
       "",
     ].join("\n"),
   );
@@ -44,7 +45,9 @@ test("key=value assignments are validated: unknown keys, segments or enum values
   });
   expect(applyAssignments(base, ["segments=5h,bogus"])).toEqual({ ok: false, error: 'unknown segment "bogus" (available: model ctx tokens 5h 7d booster spend mode git cwd session version)' });
   expect(applyAssignments(base, ["quotaStyle=nope"])).toEqual({ ok: false, error: 'quotaStyle must be one of: text, bar (got "nope")' });
-  expect(applyAssignments(base, ["colour=red"])).toEqual({ ok: false, error: 'unknown key "colour" (available: segments quotaStyle separator showReset icons barWidth ascii quotaWhenNotKimi refreshIntervalMs staleAfterMs)' });
+  expect(applyAssignments(base, ["colour=red"])).toEqual({ ok: false, error: 'unknown key "colour" (available: segments quotaStyle separator showReset icons barWidth ascii quotaWhenNotKimi refreshIntervalMs staleAfterMs lang)' });
+  expect(applyAssignments(base, ["lang=zh"])).toEqual({ ok: true, config: { ...base, lang: "zh" } });
+  expect(applyAssignments(base, ["lang=fr"])).toEqual({ ok: false, error: 'lang must be one of: auto, zh, en (got "fr")' });
   expect(applyAssignments(base, ["barWidth=zero"])).toEqual({ ok: false, error: 'barWidth must be a positive integer (got "zero")' });
   expect(applyAssignments(base, ["segments"])).toEqual({ ok: false, error: 'expected key=value (got "segments")' });
 });

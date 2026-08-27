@@ -6,10 +6,6 @@ import { readFileSync as readFileSync8 } from "fs";
 import { homedir } from "os";
 import { fileURLToPath } from "url";
 
-// src/configure.ts
-import { mkdirSync as mkdirSync4, existsSync as existsSync2, readFileSync as readFileSync4, writeFileSync as writeFileSync4 } from "fs";
-import { dirname as dirname4 } from "path";
-
 // src/config.ts
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -158,7 +154,8 @@ var DEFAULT_CONFIG = Object.freeze({
   separator: "pipe",
   showReset: true,
   icons: true,
-  quotaStyle: "text"
+  quotaStyle: "text",
+  lang: "auto"
 });
 function configPath(env, home) {
   const base = env["XDG_CONFIG_HOME"]?.trim();
@@ -205,6 +202,9 @@ function applyKey(out, key, value) {
     case "quotaStyle":
       if (value === "text" || value === "bar") out.quotaStyle = value;
       return;
+    case "lang":
+      if (value === "auto" || value === "zh" || value === "en") out.lang = value;
+      return;
     case "quotaWhenNotKimi":
       if (value === "hide" || value === "show") out.quotaWhenNotKimi = value;
       return;
@@ -213,11 +213,19 @@ function applyKey(out, key, value) {
   }
 }
 
+// src/configure.ts
+import { mkdirSync as mkdirSync4, existsSync as existsSync2, readFileSync as readFileSync4, writeFileSync as writeFileSync4 } from "fs";
+import { dirname as dirname4 } from "path";
+
 // src/preview.ts
 import { join as join6 } from "path";
 
 // src/render.ts
-var EXPIRED_HINT = "\u989D\u5EA6\u4E0D\u53EF\u7528 \xB7 \u8BF7\u5728 kimi-code \u4E2D\u7EE7\u7EED\u4F7F\u7528\u4EE5\u5237\u65B0\u51ED\u8BC1";
+var EXPIRED_HINTS = {
+  zh: "\u989D\u5EA6\u4E0D\u53EF\u7528 \xB7 \u8BF7\u5728 kimi-code \u4E2D\u7EE7\u7EED\u4F7F\u7528\u4EE5\u5237\u65B0\u51ED\u8BC1",
+  en: "quota unavailable \xB7 keep using kimi-code to refresh the login"
+};
+var EXPIRED_HINT = EXPIRED_HINTS.zh;
 var PRIORITY = { "5h": 1, "7d": 2, ctx: 3, model: 4, tokens: 5, booster: 6, spend: 7, mode: 8, git: 9, cwd: 10, session: 11, version: 12 };
 var NARROW_COLUMNS = 60;
 var SEPARATOR_WIDTH = 3;
@@ -296,7 +304,7 @@ function collapsedQuotaSegment(id, state) {
     case "no-auth":
       return `${enabled.join("/")} no auth`;
     case "expired":
-      return EXPIRED_HINT;
+      return EXPIRED_HINTS[state.lang ?? "zh"];
     default:
       return null;
   }
@@ -437,6 +445,17 @@ function render(state) {
     if (text !== null) segments.push({ id, text });
   }
   return fit(segments, state.columns).map((s) => s.text).join(separator(state));
+}
+
+// src/lang.ts
+function detectLang(setting, env) {
+  if (setting === "zh" || setting === "en") return setting;
+  for (const key of ["LC_ALL", "LC_MESSAGES", "LANG"]) {
+    const value = env[key]?.trim();
+    if (!value) continue;
+    return value.toLowerCase().startsWith("zh") ? "zh" : "en";
+  }
+  return "en";
 }
 
 // src/statusline.ts
@@ -652,6 +671,7 @@ function run(input) {
     colors,
     now,
     home,
+    lang: detectLang(config.lang, env),
     ...startedAt !== void 0 ? { sessionStartedAt: startedAt } : {}
   });
 }
@@ -748,6 +768,7 @@ function previewLine(config, ctx, opts) {
     colors: opts.colors,
     now,
     home: ctx.home,
+    lang: detectLang(config.lang, ctx.env),
     sessionStartedAt: now - 65 * 6e4
   });
 }
@@ -784,11 +805,12 @@ var PRESETS = {
   full: [...DEFAULT_CONFIG.segments],
   quota: ["5h", "7d", "booster", "spend", "mode", "git"]
 };
-var KEYS = ["segments", "quotaStyle", "separator", "showReset", "icons", "barWidth", "ascii", "quotaWhenNotKimi", "refreshIntervalMs", "staleAfterMs"];
+var KEYS = ["segments", "quotaStyle", "separator", "showReset", "icons", "barWidth", "ascii", "quotaWhenNotKimi", "refreshIntervalMs", "staleAfterMs", "lang"];
 var ENUMS = {
   quotaStyle: ["text", "bar"],
   separator: ["pipe", "dot", "arrow", "space"],
-  quotaWhenNotKimi: ["hide", "show"]
+  quotaWhenNotKimi: ["hide", "show"],
+  lang: ["auto", "zh", "en"]
 };
 function applyAssignments(base, assignments) {
   const next = { ...base, segments: [...base.segments] };
@@ -809,7 +831,8 @@ function applyAssignments(base, assignments) {
       }
       case "quotaStyle":
       case "separator":
-      case "quotaWhenNotKimi": {
+      case "quotaWhenNotKimi":
+      case "lang": {
         const allowed = ENUMS[key] ?? [];
         if (!allowed.includes(value)) return { ok: false, error: `${key} must be one of: ${allowed.join(", ")} (got "${value}")` };
         next[key] = value;
@@ -852,6 +875,7 @@ function serializeConfig(config) {
     line("quotaWhenNotKimi", JSON.stringify(config.quotaWhenNotKimi), "hide | show"),
     line("refreshIntervalMs", String(config.refreshIntervalMs)),
     line("staleAfterMs", String(config.staleAfterMs)),
+    line("lang", JSON.stringify(config.lang), "auto | zh | en \u2014 footer hint language (auto = $LANG)"),
     ""
   ].join("\n");
 }
@@ -1401,6 +1425,7 @@ Usage: kimi-dashboard <command> [options]
   preview      render sample data, no network                 [--hot] [--stale] [--no-auth] [--expired] [--empty] [--not-kimi] [--bar] [--ascii] [--width N] [--color]
   config       show or change what the line displays         [--preset compact|full|quota] [key=value ...]
                e.g. config segments=model,5h,7d,git quotaStyle=bar separator=dot
+  lang         print the language to talk to the user in (zh|en): config lang, else $LANG
 `;
 var SELF = fileURLToPath(import.meta.url);
 function spawnRefresh() {
@@ -1448,6 +1473,10 @@ async function main(argv) {
       return runPreview(rest, { env: process.env, home: homedir() });
     case "config":
       return runConfig(rest, { env: process.env, home: homedir() });
+    case "lang":
+      process.stdout.write(`${detectLang(loadConfig(configPath(process.env, homedir())).lang, process.env)}
+`);
+      return 0;
     case "--version":
     case "-v":
     case "version":

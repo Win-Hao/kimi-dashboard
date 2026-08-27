@@ -16,6 +16,7 @@ test("no config file means the documented defaults", () => {
     showReset: true,
     icons: true,
     quotaStyle: "text",
+    lang: "auto",
   });
   expect(loadConfig(join(tempDir(), "missing.toml"))).toEqual(DEFAULT_CONFIG);
 });
@@ -37,6 +38,7 @@ test("a config file overrides individual keys and unknown segments or wrong type
       "showReset = false",
       "icons = false",
       'quotaStyle = "bar"',
+      'lang = "zh"',
       'unknownKey = "whatever"',
       "",
     ].join("\n"),
@@ -52,6 +54,7 @@ test("a config file overrides individual keys and unknown segments or wrong type
     showReset: false,
     icons: false,
     quotaStyle: "bar",
+    lang: "zh",
   });
   const bad = join(dir, "bad-enum.toml");
   writeFileSync(bad, 'quotaWhenNotKimi = "maybe"\n');
